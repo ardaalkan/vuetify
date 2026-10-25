@@ -1,6 +1,7 @@
 // Composables
 import { getInterpolationMethod, isLinearColorScale } from './colorScale'
 import { usePivot } from './pivot'
+import { useDate } from '@/composables/date'
 
 // Utilities
 import { computed, shallowRef, toRef, toValue, watchEffect } from 'vue'
@@ -34,6 +35,7 @@ export interface HeatmapProps extends PivotProps {
   cellSize?: string | number | (string | number)[]
   gap?: string | number
   groupGap?: string | number
+  firstDayOfWeek?: number | string
 }
 
 function toPx (value: any, defaultValue: number): number {
@@ -59,6 +61,9 @@ interface LinearRange { fromMin: number, toMin: number }
 interface LinearColors { from: string, to: string, method: string }
 
 export function useHeatmap (props: HeatmapProps) {
+  const adapter = useDate()
+  const firstDayOfWeek = toRef(() => adapter.toJsDate(adapter.startOfWeek(adapter.date(), props.firstDayOfWeek)).getDay())
+
   const bucketBoundaries = shallowRef<number[]>([])
   const bucketColors = shallowRef<string[]>([])
   const linearRange = shallowRef<LinearRange | null>(null)
@@ -115,6 +120,11 @@ export function useHeatmap (props: HeatmapProps) {
     hasExplicitColumns,
     groups: pivotGroups,
   } = usePivot<Record<string, any>, HeatmapCell>(props, {
+    transformRows: rows => {
+      if (rows.length !== 7 || ![0, 1, 2, 3, 4, 5, 6].every(day => rows.includes(day))) return rows
+
+      return Array.from({ length: 7 }, (_, index) => (Number(firstDayOfWeek.value) + index) % 7)
+    },
     transformCell: cell => {
       const value = Number(cell.value) || 0
 
@@ -182,9 +192,7 @@ export function useHeatmap (props: HeatmapProps) {
       const width = columnCount * cellWidthPx + Math.max(0, columnCount - 1) * gapPx
       const hasOverlap = groupIndex > 0 && group.columns[0]?.cells[0] == null
 
-      if (groupIndex > 0) {
-        cursor += hasOverlap ? groupGapPx - cellWidthPx : gapPx + groupGapPx
-      }
+      if (groupIndex > 0) cursor += hasOverlap ? -cellWidthPx : gapPx + groupGapPx
 
       const x = cursor
       cursor += width

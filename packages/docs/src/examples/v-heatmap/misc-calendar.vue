@@ -3,11 +3,11 @@
     <v-card class="pa-2">
 
       <v-heatmap
+        :first-day-of-week="1"
         :group-by="groupBy"
         :group-gap="groupGap"
         :item-row="itemRow"
         :items="items"
-        :rows="rows"
         :thresholds="thresholds"
         cell-size="20"
         gap="4"
@@ -91,7 +91,6 @@
   const groupGap = ref(24)
   const hue = ref(140)
 
-  const rows = [0, 1, 2, 3, 4, 5, 6]
   const groupBy = v => adapter.format(v.date, 'monthAndYear')
   const itemRow = v => adapter.toJsDate(v.date).getDay()
 

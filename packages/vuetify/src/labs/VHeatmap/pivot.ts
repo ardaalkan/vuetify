@@ -41,6 +41,7 @@ export interface PivotProps<T = Record<string, any>> {
 
 export interface PivotOptions<T, C extends PivotCell<T>> {
   transformCell?: (cell: PivotCell<T>) => C
+  transformRows?: (rows: any[]) => any[]
 }
 
 export function usePivot<
@@ -54,13 +55,14 @@ export function usePivot<
 
   const rows = computed<any[]>(() => {
     const rowsProp = toValue(props.rows)
-    if (rowsProp) return [...rowsProp]
+    if (rowsProp) return options.transformRows?.([...rowsProp]) ?? [...rowsProp]
 
     const items = toValue(props.items)
     const itemRow = unref(props.itemRow)
     const set = new Set<any>()
     for (const item of items) set.add(getPropertyFromItem(item, itemRow))
-    return [...set]
+    const rows = [...set]
+    return options.transformRows?.(rows) ?? rows
   })
 
   // True when itemColumn resolves to a value for at least one item — i.e. columns are

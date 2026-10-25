@@ -3,6 +3,7 @@
     "cellSize": "Sets size of each cell. A single value sets both width and height. Accepts `[width, height]` tuple.",
     "columns": "Explicit list of column keys. When omitted, columns are derived from the items.",
     "emptyColor": "Fill color for cells with `null` value.",
+    "firstDayOfWeek": "Sets the first weekday for calendar-style heatmaps (0 for Sunday through 6 for Saturday). Numeric weekday rows are ordered from this day. Defaults to the date adapter's locale.",
     "gap": "Spacing between cells.",
     "groupBy": "Property name or function used to split items into separate column groups (e.g. by month).",
     "groupGap": "Spacing between column groups, in pixels.",

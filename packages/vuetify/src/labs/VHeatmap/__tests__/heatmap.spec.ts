@@ -61,6 +61,15 @@ describe('useHeatmap rows', () => {
     })
     expect(rows.value).toEqual(['A', 'B', 'C'])
   })
+
+  it('orders weekday rows from the configured first day of the week', () => {
+    const { rows } = setup({
+      firstDayOfWeek: 1,
+      rows: [0, 1, 2, 3, 4, 5, 6],
+    })
+
+    expect(rows.value).toEqual([1, 2, 3, 4, 5, 6, 0])
+  })
 })
 
 describe('useHeatmap column groups', () => {
@@ -149,6 +158,28 @@ describe('useHeatmap explicit columns (itemColumn)', () => {
 describe('useHeatmap inferred columns (no itemColumn)', () => {
   // Row key 0..6 simulates days of the week — new column starts when index wraps back.
   const rows = [0, 1, 2, 3, 4, 5, 6]
+
+  it('aligns an overlapping week when the week starts on Monday and groupGap is set', () => {
+    const { groups } = setup({
+      firstDayOfWeek: 1,
+      groupBy: 'month',
+      groupGap: 24,
+      rows,
+      items: [
+        { month: 'Jan', row: 1, value: 1 }, // Monday
+        { month: 'Jan', row: 2, value: 2 },
+        { month: 'Jan', row: 3, value: 3 },
+        { month: 'Jan', row: 4, value: 4 },
+        { month: 'Jan', row: 5, value: 5 },
+        { month: 'Jan', row: 6, value: 6 }, // Saturday
+        { month: 'Feb', row: 0, value: 7 }, // Sunday shares the same week
+        { month: 'Feb', row: 1, value: 8 }, // Monday starts the next week
+      ],
+    })
+
+    expect(groups.value[1].hasOverlap).toBe(true)
+    expect(groups.value[1].x).toBe(groups.value[0].x + groups.value[0].width - 26)
+  })
 
   it('places items in a single column while row index is monotonically increasing', () => {
     const { groups } = setup({

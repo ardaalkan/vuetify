@@ -398,6 +398,11 @@
       "prop-loading": "4.1.0"
     }
   },
+  "VHeatmap": {
+    "props": {
+      "firstDayOfWeek": "4.4.0"
+    }
+  },
   "VIcon": {
     "props": {
       "opacity": "3.8.0"
